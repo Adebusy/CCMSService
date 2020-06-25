@@ -1,0 +1,20 @@
+{
+    "roles": [
+        {
+          "name": "Super-Admin",
+          "ID": 1
+        },
+        {
+          "name": "Admin",
+          "ID": 2
+        },
+        {
+            "name": "CSO",
+            "ID": 3
+          },
+          {
+            "name": "Control Officer",
+            "ID": 4
+          }
+      ]
+}

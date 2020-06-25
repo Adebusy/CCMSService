@@ -1,5 +1,347 @@
+basePath: /api/v1
+definitions:
+  complaints.Cases:
+    properties:
+      AccountCurrency:
+        type: string
+      AccountNumber:
+        type: string
+      AccountType:
+        type: string
+      ActionTaken:
+        type: string
+      AddedBy:
+        type: string
+      Address1:
+        type: string
+      Address2:
+        type: string
+      AmountRecovered:
+        description: decimal.Decimal
+        type: string
+      AmountRefunded:
+        description: decimal.Decimal
+        type: string
+      BranchName:
+        type: string
+      CFirstName:
+        type: string
+      CLastName:
+        type: string
+      CMiddleName:
+        type: string
+      Category:
+        type: string
+      CellPhone:
+        type: string
+      City:
+        type: string
+      ClientType:
+        type: string
+      ComplaintChannelID:
+        type: string
+      ComplaintLocation:
+        type: string
+      ComplaintType:
+        type: string
+      Country:
+        type: string
+      DateClosed:
+        type: string
+      DateReceived:
+        type: string
+      Description:
+        type: string
+      DisputeAmount:
+        description: decimal.Decimal
+        type: string
+      Email:
+        type: string
+      FullName:
+        type: string
+      Implication:
+        type: string
+      NameOfConsultant:
+        type: string
+      OfficePhone:
+        type: string
+      PosterCode:
+        type: string
+      Prayer:
+        type: string
+      PreffeContPhone:
+        type: string
+      PreffeContact:
+        type: string
+      PreffeEmail:
+        type: string
+      RefNo:
+        type: string
+      Remarks:
+        type: string
+      State:
+        type: string
+      Status:
+        type: string
+      SubCategory:
+        type: string
+      Subject:
+        type: string
+      TransactionDate:
+        type: string
+      comment:
+        type: string
+      updatedby:
+        type: string
+    type: object
+  models.Cases:
+    properties:
+      AccountCurrency:
+        type: string
+      AccountNumber:
+        type: string
+      AccountType:
+        type: string
+      ActionTaken:
+        type: string
+      AddedBy:
+        type: string
+      Address1:
+        type: string
+      Address2:
+        type: string
+      AmountRecovered:
+        description: decimal.Decimal
+        type: string
+      AmountRefunded:
+        description: decimal.Decimal
+        type: string
+      BranchName:
+        type: string
+      CFirstName:
+        type: string
+      CLastName:
+        type: string
+      CMiddleName:
+        type: string
+      Category:
+        type: string
+      CellPhone:
+        type: string
+      City:
+        type: string
+      ClientType:
+        type: string
+      ComplaintChannelID:
+        type: string
+      ComplaintLocation:
+        type: string
+      ComplaintType:
+        type: string
+      Country:
+        type: string
+      DateReceived:
+        type: string
+      Description:
+        type: string
+      DisputeAmount:
+        description: decimal.Decimal
+        type: string
+      Email:
+        type: string
+      FullName:
+        type: string
+      Implication:
+        type: string
+      NameOfConsultant:
+        type: string
+      OfficePhone:
+        type: string
+      PosterCode:
+        type: string
+      Prayer:
+        type: string
+      PreffeContPhone:
+        type: string
+      PreffeContact:
+        type: string
+      PreffeEmail:
+        type: string
+      RefNo:
+        type: string
+      Remarks:
+        type: string
+      State:
+        type: string
+      Status:
+        type: string
+      SubCategory:
+        type: string
+      Subject:
+        type: string
+      TransactionDate:
+        type: string
+      comment:
+        type: string
+    type: object
+  models.ResponseMessage:
+    properties:
+      ResponseCode:
+        type: string
+      ResponseDescription:
+        type: string
+    type: object
+  models.Role:
+    properties:
+      ID:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.Roles:
+    properties:
+      roles:
+        items:
+          $ref: '#/definitions/models.Role'
+        type: array
+    type: object
+  users.User:
+    properties:
+      CreatedBy:
+        type: string
+      Email:
+        type: string
+      FirstName:
+        type: string
+      LastName:
+        type: string
+      MiddleName:
+        type: string
+      OfficeLocation:
+        type: string
+      RoleID:
+        type: string
+      UserName:
+        type: string
+    type: object
 info:
-  contact: {}
-  license: {}
-paths: {}
+  contact:
+    email: alao.adebusy@gmail.com
+    name: Alao ramon Adebisi
+  description: This service is meant to manage consumers complaint API.
+  license:
+    name: Linear Logic Concept
+    url: https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
+  termsOfService: http://swagger.io/terms/
+  title: Consumers Complaint Management System API
+  version: "1.0"
+paths:
+  /Users/ChangeUserDetails/:
+    post:
+      parameters:
+      - description: create new user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMessage'
+      summary: create new question
+  /Users/ChangeUserStatus/{Username}/{Status}/{RoleID}:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMessage'
+      summary: Update user status ('Active', 'Non-Active')
+  /Users/CreateUser/:
+    post:
+      parameters:
+      - description: create new user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMessage'
+      summary: create new question
+  /Users/FetchAvailableRoles/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Roles'
+      summary: create new question
+  /Users/GetUserFullInfoByEmail/{UserEmail}:
+    get:
+      parameters:
+      - description: User email address
+        in: path
+        name: UserEmail
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.User'
+      summary: get user detials by user email address
+  /complaint/LogComplaint:
+    post:
+      parameters:
+      - description: Create new complaint
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/complaints.Cases'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMessage'
+      summary: create new compliant
+  /complaint/LogComplaintRequest/:
+    post:
+      parameters:
+      - description: Create new complaint
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.Cases'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMessage'
+      summary: create new compliant
 swagger: "2.0"
