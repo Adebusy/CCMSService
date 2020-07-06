@@ -1,9 +1,9 @@
 FROM golang:1.14
 
-WORKDIR /go/src/app
+WORKDIR /go/src/CCMSService
 COPY . .
 
 RUN go get -d -v ./...
 RUN go install -v ./...
-
-CMD ["app"]
+EXPOSE 8060
+CMD ["CCMSService"]
