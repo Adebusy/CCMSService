@@ -2,15 +2,19 @@ package main
 
 import (
 	"github.com/Adebusy/CCMSService/docs"
+	"github.com/Adebusy/CCMSService/utilities"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
+	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	"github.com/Adebusy/CCMSService/handlers/users_handler"
+	handleReq "github.com/Adebusy/CCMSService/handlers"
 )
 
 func init() {
+	godotenv.Load()
+	//dbGorm := driver.GetDB()
 	//"github.com/Adebusy/CCMSService/features/complaints"
 	//"github.com/Adebusy/CCMSService/features/users"
 
@@ -23,13 +27,17 @@ func init() {
 	// dbGorm.Debug().DropTableIfExists(&models.TblComplaintChannels{})
 	// dbGorm.Debug().DropTableIfExists(&models.TblComplaintSubCategories{})
 	// dbGorm.Debug().DropTableIfExists(&models.TblRoles{})
+	//dbGorm.Debug().DropTableIfExists(&models.TblComplaintCategories{})
 
 	// // dbGorm.SingularTable(true)
 	// dbGorm.Debug().AutoMigrate(&models.TblUsers{})
+	// dbGorm.Debug().AutoMigrate(&models.TblRoles{})
+
 	// dbGorm.Debug().AutoMigrate(&models.TblCases{})
 	// dbGorm.Debug().AutoMigrate(&models.TblComplaintChannels{})
 	// dbGorm.Debug().AutoMigrate(&models.TblComplaintSubCategories{})
-	// dbGorm.Debug().AutoMigrate(&models.TblRoles{})
+	//dbGorm.Debug().AutoMigrate(&models.TblComplaintType{})
+	//dbGorm.Debug().AutoMigrate(&models.TblComplaintCategories{})
 	// fmt.Println("Done with table creation")
 	//}
 }
@@ -53,12 +61,15 @@ func main() {
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 	r := gin.Default()
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.POST("/Users/CreateUser/", users_handler.CreateUser)
-	r.GET("/Users/GetUserFullInfoByEmail/:UserEmail", users_handler.GetUserFullInfoByEmail)
-	r.POST("/Users/ChangeUserDetails/", users_handler.ChangeUserDetails)
-	r.GET("/Users/FetchAvailableRoles", users_handler.FetchRoles)
+	r.POST("/Users/CreateUser/", handleReq.CreateUser)
+	r.GET("/Users/GetUserFullInfoByEmail/:UserEmail", handleReq.GetUserFullInfoByEmail)
+	r.POST("/Users/ChangeUserDetails/", handleReq.ChangeUserDetails)
+	r.GET("/Users/FetchAvailableRoles", handleReq.FetchRoles)
+	r.GET("/Users/ChangeUserStatus/:Username/:Status/:RoleID", handleReq.ChangeUserStatus)
 
-	r.GET("/Users/ChangeUserStatus/:Username/:Status/:RoleID", users_handler.ChangeUserStatus)
-	r.POST("/complaint/LogComplaintRequest/", complaint_handler.LogComplaintRequest) //http://localhost:8092/complaint/LogComplaint
-	r.Run(":8094")
+	r.POST("/complaint/LogComplaintRequest/", handleReq.LogComplaintRequest)
+	r.POST("/complaint/CreateComplaintCategories/", handleReq.CreateComplaintCategories)
+	r.GET("/complaint/FetchComplaintCategories/", handleReq.FetchComplaintCategories)
+	r.GET("/complaint/GetComplaintByRefID/:ReferenceID", handleReq.GetComplaintByRefID)
+	r.Run(utilities.GoDotEnvVariable("AppPort"))
 }

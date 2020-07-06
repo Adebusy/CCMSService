@@ -3,20 +3,22 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
-	"github.com/Adebusy/CCMSService/driver"
 	"github.com/Adebusy/CCMSService/utilities"
 
-	"github.com/Adebusy/CCMSService/models"
+	md "github.com/Adebusy/CCMSService/models"
 	"github.com/gin-gonic/gin"
-
-	"github.com/Adebusy/CCMSService/datastore/sqlserver"
 )
 
-var compService = sqlserver.NewComplaintService(driver.GetDB())
+//var compService = sqlserver.NewComplaintService(driver.GetDB())
+//UserInterface user interface
+//var UserInterface = sqlserver.NewuserService(driver.GetDB())
 
+//func init() {
+//	UserInterface = sqlserver.NewuserService(driver.GetDB())
+//	compService = sqlserver.NewComplaintService(driver.GetDB())
+//}
 // LogComplaintRequest godoc
 // @Summary create new compliant
 // @Produce json
@@ -25,9 +27,8 @@ var compService = sqlserver.NewComplaintService(driver.GetDB())
 // @Router /complaint/LogComplaintRequest/ [post]
 func LogComplaintRequest(ctx *gin.Context) {
 	fmt.Println("got to here cases 1")
-	var NewCase models.Cases
-	var resp models.ResponseMessage
-	var tblcase models.TblCases
+	var NewCase md.Cases
+	var tblcase md.TblCases
 
 	err := ctx.ShouldBindJSON(&NewCase)
 	if err != nil {
@@ -36,13 +37,14 @@ func LogComplaintRequest(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
+	fmt.Println("got to here cases 21")
 	if NewCase.AddedBy == "" {
 		resp.ResponseDescription = "Initiators name is required for this request to be treated."
 		resp.ResponseCode = "01"
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
-
+	fmt.Println("got to here cases 21")
 	//confirm initiators name
 	queryInitiator, _ := UserInterface.CheckUser(ctx, NewCase.AddedBy)
 	if queryInitiator.ID <= 0 {
@@ -52,7 +54,7 @@ func LogComplaintRequest(ctx *gin.Context) {
 		return
 	}
 	fmt.Println("got to here cases 2")
-	if queryInitiator.RoleID != "CSO" {
+	if queryInitiator.RoleID != "3" {
 		resp.ResponseDescription = "Only a valid CSO is allowed to Initiate complaint request."
 		resp.ResponseCode = "01"
 		ctx.JSON(http.StatusBadRequest, resp)
@@ -65,13 +67,9 @@ func LogComplaintRequest(ctx *gin.Context) {
 	if NewCase.ClientType == "CORPORATE" || NewCase.ClientType == "CORP" {
 		NewCase.ClientType = "CORP"
 	}
-	year, month, day := time.Now().Date()
-	sec := time.Now().Second
-	refnum := strconv.Itoa(year) + strconv.Itoa(int(month)) + strconv.Itoa(day) + strconv.Itoa(sec)
-	refnum = "SBN" + refnum + utilities.GenerateOTP(4)
-
+	refnum := utilities.GenFerenceNo()
 	if len(refnum) < 16 {
-		refnum = PadLeft(refnum, "0", 16)
+		refnum = utilities.PadLeft(refnum, "0", 16)
 	}
 	fmt.Println("got to here cases 3")
 	tblcase.RefNo = refnum
@@ -116,7 +114,11 @@ func LogComplaintRequest(ctx *gin.Context) {
 	tblcase.ActionTaken = NewCase.ActionTaken
 	tblcase.Prayer = NewCase.Prayer
 	tblcase.Status = NewCase.Status
-	tblcase.DateReceived = strconv.Itoa(year) + "/" + strconv.Itoa(int(month)) + "/" + strconv.Itoa(day)
+	tblcase.ComplaintType = "ATM"
+	fmt.Println("got to here cases ")
+	dt := time.Now()
+	fmt.Println(dt.Format("DD-MM-YYYY"))
+	tblcase.DateReceived = time.Now() //strconv.Itoa(year) + "/" + strconv.Itoa(int(month)) + "/" + strconv.Itoa(day)
 	if NewCase.Implication == "NON-FINANCIAL" {
 		tblcase.Implication = "Y"
 	} else {
@@ -125,80 +127,103 @@ func LogComplaintRequest(ctx *gin.Context) {
 	tblcase.PreffeContPhone = NewCase.PreffeContPhone
 	tblcase.PreffeEmail = NewCase.PreffeEmail
 	tblcase.PreffeContact = NewCase.PreffeContact
-	tblcase.TransactionDate = NewCase.TransactionDate
+
+	transactionDate, err := time.Parse("2006-01-02", NewCase.TransactionDate)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("got to here cases 22 ")
+	tblcase.TransactionDate = transactionDate //time.Parse(NewCase.TransactionDate, time.Date())  //. NewCase.TransactionDate
 	fmt.Println("got to here cases ")
 	//log complaint
 	logComplaint, err := compService.LogComplaint(ctx, tblcase)
-	if logComplaint > 0 {
+	if logComplaint <= 0 {
 		resp.ResponseCode = "01"
 		resp.ResponseDescription = err.Error()
 		ctx.JSON(http.StatusOK, resp)
 		return
 	}
-	resp.ResponseCode = "01"
-	resp.ResponseDescription = err.Error()
+	resp.ResponseCode = "00"
+	resp.ResponseDescription = "Compliant with reference ID " + tblcase.RefNo + " logged successfully."
 	ctx.JSON(http.StatusOK, resp)
-	return
 }
 
-//PadLeft pad reference number
-func PadLeft(str, pad string, lenght int) string {
-	for {
-		str = pad + str
-		if len(str) > lenght {
-			return str[0:lenght]
-		}
+// GetComplaintByRefID godoc
+// @Summary get logged complaint with reference ID
+// @Produce json
+// @Success 200 {object} models.TblCases
+// @Router /complaint/GetComplaintByRefID/{ReferenceID} [get]
+func GetComplaintByRefID(ctx *gin.Context) {
+	fmt.Println("got to here cases 1")
+	CompRefNo := ctx.Param("ReferenceID")
+	if CompRefNo == "nil" {
+		resp.ResponseDescription = "Reference number is required for this request."
+		resp.ResponseCode = "01"
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
 	}
+	fmt.Println("got to here cases 21")
+	//get complaint with id
+	CustCompliant, err := compService.GetSingleComplaintByComplaintID(ctx, CompRefNo)
+	if err != nil {
+		resp.ResponseDescription = "unable to fetch complaint at the moment. Please try again later."
+		resp.ResponseCode = "01"
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+	ctx.JSON(http.StatusOK, CustCompliant)
 }
 
-var resp models.ResponseMessage
+// CreateComplaintCategories godoc
+// @Summary create new compliant
+// @Produce json
+// @Param user body models.ComplaintCategories true "Create new complaint category"
+// @Success 200 {object} models.ResponseMessage
+// @Router /complaint/CreateComplaintCategories/ [post]
+func CreateComplaintCategories(ctx *gin.Context) {
+	var req md.ComplaintCategories
+	var reqBody md.TblComplaintCategories
+	requestBody := ctx.ShouldBindJSON(&req)
+	if requestBody != nil {
+		ctx.JSON(http.StatusOK, "unable to read request at the moment. Please confirm the request body and try again")
+		return
+	}
+	fmt.Println(req.CBNCategoryCode)
+	//check it has not been created before
+	checkCompl := compService.CheckCompliantCategory(ctx, req)
+	if checkCompl > 0 {
+		resp.ResponseCode = "01"
+		resp.ResponseDescription = "Complaint category already exist. Please re-check the name and try again."
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+	reqBody.Category = req.Category
+	reqBody.CBNCategoryCode = req.CBNCategoryCode
+	//create category
+	doCreate, err := compService.CreateCompliantCategory(ctx, reqBody)
+	if err != nil {
+		resp.ResponseDescription = err.Error()
+		resp.ResponseCode = "01"
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+	if doCreate <= 0 {
+		resp.ResponseDescription = "Service is unable to create category at the moment. Please try again later"
+		resp.ResponseCode = "01"
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+	resp.ResponseDescription = "Complaint category created successfully."
+	resp.ResponseCode = "00"
+	ctx.JSON(http.StatusOK, resp)
+}
 
-//validateComplaintRequest call to confirm request parameters
-func validateComplaintRequest(NewCase models.Cases) models.ResponseMessage {
-	//resp models.ResponseMessage
-	if NewCase.Description == "" {
-		resp.ResponseDescription = "Complaint description must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
-	if NewCase.ComplaintChannelID == "" {
-		resp.ResponseDescription = "Complaint channel must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
-	if NewCase.Category == "" {
-		resp.ResponseDescription = "Complaint Category must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
-	if NewCase.SubCategory == "" {
-		resp.ResponseDescription = "Complaint sub category must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
-	if NewCase.Subject == "" {
-		resp.ResponseDescription = "Subject of complaint must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
-	if NewCase.ClientType == "" {
-		resp.ResponseDescription = "Subject of complaint must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
-	if NewCase.Category == "OTHERS" {
-		resp.ResponseDescription = "complaint category must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
-	if NewCase.SubCategory == "" {
-		resp.ResponseDescription = "complaint sub=category must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
-	if NewCase.Subject == "" {
-		resp.ResponseDescription = "Subject must be selected."
-		resp.ResponseCode = "01"
-		return resp
-	}
+// FetchComplaintCategories godoc
+// @Summary fetch the list of complaint category
+// @Produce json
+// @Success 200 {object} models.TblComplaintCategories
+// @Router /complaint/FetchComplaintCategories/ [get]
+func FetchComplaintCategories(ctx *gin.Context) {
+	CustCompliant := compService.FetchCompliantCategories(ctx)
+	ctx.JSON(http.StatusOK, CustCompliant)
 }

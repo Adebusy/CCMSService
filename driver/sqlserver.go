@@ -2,8 +2,7 @@ package driver
 
 import (
 	"fmt"
-	"os"
-
+	"github.com/Adebusy/CCMSService/utilities"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
 	"github.com/joho/godotenv"
@@ -12,27 +11,21 @@ import (
 var DbGorm *gorm.DB
 var ErrGorm error
 
-//ConnectGorm connection string for gorm
-func ConnectGorm() error {
+func init() {
+	//fmt.Println("connect init")
 	godotenv.Load()
-	connectionString := fmt.Sprintf("sqlserver://%s:%s@%s?database=%s", GoDotEnvVariable("user"), GoDotEnvVariable("Password"), GoDotEnvVariable("Server"), GoDotEnvVariable("Database"))
-	DbGorm, ErrGorm = gorm.Open(GoDotEnvVariable("client"), connectionString)
+	//fmt.Println("connect Load")
+	connectionString := fmt.Sprintf("sqlserver://%s:%s@%s?database=%s", utilities.GoDotEnvVariable("user"), utilities.GoDotEnvVariable("Password"), utilities.GoDotEnvVariable("Server"), utilities.GoDotEnvVariable("Database"))
+	DbGorm, ErrGorm = gorm.Open(utilities.GoDotEnvVariable("client"), connectionString)
 	if ErrGorm != nil {
-		return ErrGorm
+		fmt.Println("connect error")
+		fmt.Println(ErrGorm.Error())
 	}
-	return nil
+	//fmt.Println("mo connect....")
+	//return nil
 }
 
 func GetDB() *gorm.DB {
+	//fmt.Println("connect GetDB")
 	return DbGorm
-}
-
-//GoDotEnvVariable load env file
-func GoDotEnvVariable(key string) string {
-	err := godotenv.Load(".env")
-	if err != nil {
-
-		//log.Fatalf("Error loading .env file")
-	}
-	return os.Getenv(key)
 }

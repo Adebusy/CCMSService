@@ -1,99 +1,5 @@
 basePath: /api/v1
 definitions:
-  complaints.Cases:
-    properties:
-      AccountCurrency:
-        type: string
-      AccountNumber:
-        type: string
-      AccountType:
-        type: string
-      ActionTaken:
-        type: string
-      AddedBy:
-        type: string
-      Address1:
-        type: string
-      Address2:
-        type: string
-      AmountRecovered:
-        description: decimal.Decimal
-        type: string
-      AmountRefunded:
-        description: decimal.Decimal
-        type: string
-      BranchName:
-        type: string
-      CFirstName:
-        type: string
-      CLastName:
-        type: string
-      CMiddleName:
-        type: string
-      Category:
-        type: string
-      CellPhone:
-        type: string
-      City:
-        type: string
-      ClientType:
-        type: string
-      ComplaintChannelID:
-        type: string
-      ComplaintLocation:
-        type: string
-      ComplaintType:
-        type: string
-      Country:
-        type: string
-      DateClosed:
-        type: string
-      DateReceived:
-        type: string
-      Description:
-        type: string
-      DisputeAmount:
-        description: decimal.Decimal
-        type: string
-      Email:
-        type: string
-      FullName:
-        type: string
-      Implication:
-        type: string
-      NameOfConsultant:
-        type: string
-      OfficePhone:
-        type: string
-      PosterCode:
-        type: string
-      Prayer:
-        type: string
-      PreffeContPhone:
-        type: string
-      PreffeContact:
-        type: string
-      PreffeEmail:
-        type: string
-      RefNo:
-        type: string
-      Remarks:
-        type: string
-      State:
-        type: string
-      Status:
-        type: string
-      SubCategory:
-        type: string
-      Subject:
-        type: string
-      TransactionDate:
-        type: string
-      comment:
-        type: string
-      updatedby:
-        type: string
-    type: object
   models.Cases:
     properties:
       AccountCurrency:
@@ -184,6 +90,13 @@ definitions:
       comment:
         type: string
     type: object
+  models.ComplaintCategories:
+    properties:
+      CBNCategoryCode:
+        type: string
+      Category:
+        type: string
+    type: object
   models.ResponseMessage:
     properties:
       ResponseCode:
@@ -205,9 +118,113 @@ definitions:
           $ref: '#/definitions/models.Role'
         type: array
     type: object
-  users.User:
+  models.TblCases:
     properties:
-      CreatedBy:
+      AccountCurrency:
+        type: string
+      AccountNumber:
+        type: string
+      AccountType:
+        type: string
+      ActionTaken:
+        type: string
+      AddedBy:
+        type: string
+      Address1:
+        type: string
+      Address2:
+        type: string
+      AmountRecovered:
+        type: string
+      AmountRefunded:
+        type: string
+      BranchName:
+        type: string
+      CFirstName:
+        type: string
+      CLastName:
+        type: string
+      CMiddleName:
+        type: string
+      Category:
+        type: string
+      CellPhone:
+        type: string
+      City:
+        type: string
+      ClientType:
+        type: string
+      ComplaintChannelID:
+        type: string
+      ComplaintLocation:
+        type: string
+      ComplaintType:
+        type: string
+      Country:
+        type: string
+      DateClosed:
+        type: string
+      DateCreated:
+        type: string
+      DateReceived:
+        type: string
+      Description:
+        type: string
+      DisputeAmount:
+        type: string
+      Email:
+        type: string
+      FullName:
+        type: string
+      ID:
+        type: integer
+      Implication:
+        type: string
+      NameOfConsultant:
+        type: string
+      OfficePhone:
+        type: string
+      PosterCode:
+        type: string
+      Prayer:
+        type: string
+      PreffeContPhone:
+        type: string
+      PreffeContact:
+        type: string
+      PreffeEmail:
+        type: string
+      RefNo:
+        type: string
+      Remarks:
+        type: string
+      State:
+        type: string
+      Status:
+        type: string
+      SubCategory:
+        type: string
+      Subject:
+        type: string
+      TransactionDate:
+        type: string
+      comment:
+        type: string
+      updatedby:
+        type: string
+    type: object
+  models.TblComplaintCategories:
+    properties:
+      CBNCategoryCode:
+        type: string
+      Category:
+        type: string
+      ID:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      DateAdded:
         type: string
       Email:
         type: string
@@ -221,7 +238,11 @@ definitions:
         type: string
       RoleID:
         type: string
+      UpdatedBy:
+        type: string
       UserName:
+        type: string
+      UserStatus:
         type: string
     type: object
 info:
@@ -244,7 +265,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/users.User'
+          $ref: '#/definitions/models.User'
           type: object
       produces:
       - application/json
@@ -272,7 +293,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/users.User'
+          $ref: '#/definitions/models.User'
           type: object
       produces:
       - application/json
@@ -306,17 +327,17 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.User'
+            $ref: '#/definitions/models.User'
       summary: get user detials by user email address
-  /complaint/LogComplaint:
+  /complaint/CreateComplaintCategories/:
     post:
       parameters:
-      - description: Create new complaint
+      - description: Create new complaint category
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/complaints.Cases'
+          $ref: '#/definitions/models.ComplaintCategories'
           type: object
       produces:
       - application/json
@@ -326,6 +347,26 @@ paths:
           schema:
             $ref: '#/definitions/models.ResponseMessage'
       summary: create new compliant
+  /complaint/FetchComplaintCategories/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TblComplaintCategories'
+      summary: fetch the list of complaint category
+  /complaint/GetComplaintByRefID/{ReferenceID}:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TblCases'
+      summary: get logged complaint with reference ID
   /complaint/LogComplaintRequest/:
     post:
       parameters:

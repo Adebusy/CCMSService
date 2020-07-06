@@ -8,11 +8,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//var connect = con.NewClient(dbGorm)
-
-//var dbGorm *gorm.DB
-//var errGorm error
-
 type complaintService struct {
 	dbGorm *gorm.DB
 }
@@ -25,7 +20,10 @@ func NewComplaintService(db *gorm.DB) IComplaint {
 //IComplaint interface
 type IComplaint interface {
 	LogComplaint(ctx context.Context, RequestBody modules.TblCases) (int, error)
-	//GetSingleComplaintByComplaintID(ctx context.Context, RequestBody modules.TblCases) (int error)
+	GetSingleComplaintByComplaintID(ctx context.Context, RequestBody string) (modules.TblCases, error)
+	CreateCompliantCategory(ctx context.Context, RequestBody modules.TblComplaintCategories) (int, error)
+	CheckCompliantCategory(ctx context.Context, RequestBody modules.ComplaintCategories) int
+	FetchCompliantCategories(ctx context.Context) []modules.TblComplaintCategories
 }
 
 func (ts complaintService) LogComplaint(ctx context.Context, RequestBody modules.TblCases) (int, error) {
@@ -36,4 +34,32 @@ func (ts complaintService) LogComplaint(ctx context.Context, RequestBody modules
 		return RequestBody.ID, query
 	}
 	return RequestBody.ID, nil
+}
+
+func (ts complaintService) GetSingleComplaintByComplaintID(ctx context.Context, RequestBody string) (modules.TblCases, error) {
+	var mycase modules.TblCases
+	query := ts.dbGorm.Table("tbl_cases").Where("ref_no=?", RequestBody).First(&mycase).Error
+	if query != nil {
+		return mycase, query
+	}
+	return mycase, nil
+}
+
+func (ts complaintService) CreateCompliantCategory(ctx context.Context, RequestBody modules.TblComplaintCategories) (int, error) {
+	query := ts.dbGorm.Table("Tbl_Complaint_Categories").Create(&RequestBody).Error
+	if query != nil {
+		return 0, query
+	}
+	return RequestBody.ID, nil
+}
+
+func (ts complaintService) CheckCompliantCategory(ctx context.Context, RequestBody modules.ComplaintCategories) int {
+	var mycase modules.TblComplaintCategories
+	ts.dbGorm.Table("Tbl_Complaint_Categories").Where("Category=?", RequestBody.Category).First(&mycase)
+	return mycase.ID
+}
+func (ts complaintService) FetchCompliantCategories(ctx context.Context) []modules.TblComplaintCategories {
+	var mycase []modules.TblComplaintCategories
+	ts.dbGorm.Table("Tbl_Complaint_Categories").Find(&mycase)
+	return mycase
 }

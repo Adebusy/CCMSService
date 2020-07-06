@@ -9,22 +9,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Adebusy/CCMSService/datastore/sqlserver"
-	"github.com/Adebusy/CCMSService/driver"
 	"github.com/Adebusy/CCMSService/models"
+	md "github.com/Adebusy/CCMSService/models"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/swag/example/celler/httputil"
+
+	ut "github.com/Adebusy/CCMSService/utilities"
 )
 
-//UserInterface user interface
-var UserInterface = sqlserver.NewuserService(driver.GetDB())
-
-func init() {
-	if ErrConn != nil {
-		fmt.Println("Unable to connect")
-	}
-	UserInterface = sqlserver.NewuserService(driver.GetDB())
-}
+//"github.com/Adebusy/CCMSService/datastore/sqlserver"
+//"github.com/Adebusy/CCMSService/driver"
 
 var resp models.ResponseMessage
 
@@ -42,11 +36,11 @@ func FetchRoles(ctx *gin.Context) {
 // CreateUser godoc
 // @Summary create new question
 // @Produce json
-// @Param user body users.User true "create new user"
+// @Param user body models.User true "create new user"
 // @Success 200 {object} models.ResponseMessage
 // @Router /Users/CreateUser/ [post]
 func CreateUser(ctx *gin.Context) {
-	var RequestBody User
+	var RequestBody md.User
 	resp.ResponseDescription = ""
 	resp.ResponseCode = ""
 	if userObj := ctx.ShouldBindJSON(&RequestBody); userObj != nil {
@@ -93,7 +87,7 @@ func CreateUser(ctx *gin.Context) {
 		return
 	}
 	//create user
-	var tbluserObj = mdl.TblUsers{DateAdded: time.Now().String(), UserName: RequestBody.UserName, UserStatus: "Active", Email: RequestBody.Email, FirstName: RequestBody.FirstName, LastName: RequestBody.LastName, RoleID: RequestBody.RoleID, UpdatedBy: "new user", OfficeLocation: RequestBody.OfficeLocation}
+	var tbluserObj = md.TblUsers{DateAdded: time.Now().String(), UserName: RequestBody.UserName, UserStatus: "Active", Email: RequestBody.Email, FirstName: RequestBody.FirstName, LastName: RequestBody.LastName, RoleID: RequestBody.RoleID, UpdatedBy: "new user", OfficeLocation: RequestBody.OfficeLocation}
 	fmt.Println(tbluserObj.LastName)
 	createusr := UserInterface.CreateUser(ctx, tbluserObj)
 	ctx.JSON(http.StatusOK, createusr)
@@ -102,12 +96,12 @@ func CreateUser(ctx *gin.Context) {
 // ChangeUserDetails godoc
 // @Summary create new question
 // @Produce json
-// @Param user body users.User true "create new user"
+// @Param user body models.User true "create new user"
 // @Success 200 {object} models.ResponseMessage
 // @Router /Users/ChangeUserDetails/ [post]
 func ChangeUserDetails(ctx *gin.Context) {
-	var resp models.ResponseMessage
-	var RequestBody User
+	var resp md.ResponseMessage
+	var RequestBody models.User
 	resp.ResponseDescription = ""
 	resp.ResponseCode = ""
 	ctx.ShouldBindJSON(&RequestBody)
@@ -135,7 +129,7 @@ func ChangeUserDetails(ctx *gin.Context) {
 		return
 	}
 	//do update
-	var tbluserObj = mdl.TblUsers{ID: usr.ID, DateAdded: "timer", UserName: usr.UserName, UserStatus: "Active", Email: usr.Email, FirstName: RequestBody.FirstName, LastName: RequestBody.LastName, RoleID: "1", UpdatedBy: "new user", OfficeLocation: usr.OfficeLocation}
+	var tbluserObj = md.TblUsers{ID: usr.ID, DateAdded: "timer", UserName: usr.UserName, UserStatus: "Active", Email: usr.Email, FirstName: RequestBody.FirstName, LastName: RequestBody.LastName, RoleID: "1", UpdatedBy: "new user", OfficeLocation: usr.OfficeLocation}
 	fmt.Println(tbluserObj.LastName)
 	fmt.Println("last name")
 	updateuserReq := UserInterface.UpdateUser(ctx, tbluserObj)
@@ -219,14 +213,14 @@ func ChangeUserStatus(ctx *gin.Context) {
 // @Summary get user detials by user email address
 // @Produce json
 // @Param UserEmail path string true "User email address"
-// @Success 200 {object} users.User
+// @Success 200 {object} models.User
 // @Router /Users/GetUserFullInfoByEmail/{UserEmail} [get]
 func GetUserFullInfoByEmail(ctx *gin.Context) {
 	fmt.Println("print")
 	userEmail := ctx.Param(`UserEmail`)
-	var resp models.ResponseMessage
+	var resp md.ResponseMessage
 	//check user email address
-	if ValidateEmail(userEmail) == false {
+	if ut.ValidateEmail(userEmail) == false {
 		resp.ResponseDescription = "Invalid Email address supplied. Please re-confirm."
 		resp.ResponseCode = "01"
 		ctx.JSON(http.StatusBadRequest, resp)
@@ -248,8 +242,8 @@ func GetUserFullInfoByEmail(ctx *gin.Context) {
 		return
 	}
 	fmt.Println("print3")
-	var respBody User
-	respBody.CreatedBy = queryResp.UpdatedBy
+	var respBody md.User
+	respBody.UpdatedBy = queryResp.UpdatedBy
 	respBody.Email = queryResp.Email
 	respBody.FirstName = queryResp.FirstName
 	respBody.LastName = queryResp.LastName
@@ -262,7 +256,7 @@ func GetUserFullInfoByEmail(ctx *gin.Context) {
 }
 
 //GetAvailableRoles all roles
-func GetAvailableRoles() mdl.Roles {
+func GetAvailableRoles() md.Roles {
 	jsonFile, err := os.Open("roles.json")
 	// if we os.Open returns an error then handle it
 	if err != nil {
@@ -273,59 +267,9 @@ func GetAvailableRoles() mdl.Roles {
 	// read our opened xmlFile as a byte array.
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	// we initialize our Users array
-	var roles mdl.Roles
+	var roles md.Roles
 	// we unmarshal our byteArray which contains our
 	// jsonFile's content into 'users' which we defined above
 	json.Unmarshal(byteValue, &roles)
 	return roles
-}
-
-//ValidateUserRequest validates user request
-func ValidateUserRequest(requestBody User) models.ResponseMessage {
-	var resp models.ResponseMessage
-	resp.ResponseCode = ""
-	resp.ResponseDescription = ""
-	if ValidateEmail(requestBody.Email) == true {
-		resp.ResponseDescription = "Emails s% address must be valid" + requestBody.Email
-		resp.ResponseCode = "01"
-		return resp
-	}
-
-	if requestBody.FirstName == "" {
-		resp.ResponseDescription = "FirstName is required"
-		resp.ResponseCode = "01"
-		return resp
-	}
-
-	if requestBody.LastName == "" {
-		resp.ResponseDescription = "Lastname is required"
-		resp.ResponseCode = "01"
-		return resp
-	}
-
-	if requestBody.MiddleName == "" {
-		resp.ResponseDescription = "Middlename is required"
-		resp.ResponseCode = "01"
-		return resp
-	}
-
-	if requestBody.OfficeLocation == "" {
-		resp.ResponseDescription = "Office location is required"
-		resp.ResponseCode = "01"
-		return resp
-	}
-
-	if requestBody.RoleID == "" {
-		resp.ResponseDescription = "Role ID is required"
-		resp.ResponseCode = "01"
-		return resp
-	}
-
-	if requestBody.UserName == "" {
-		resp.ResponseDescription = "Username is required"
-		resp.ResponseCode = "01"
-		return resp
-	}
-
-	return resp
 }

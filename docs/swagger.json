@@ -30,7 +30,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/users.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -74,7 +74,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/users.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -123,13 +123,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/users.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 }
             }
         },
-        "/complaint/LogComplaint": {
+        "/complaint/CreateComplaintCategories/": {
             "post": {
                 "produces": [
                     "application/json"
@@ -137,13 +137,13 @@
                 "summary": "create new compliant",
                 "parameters": [
                     {
-                        "description": "Create new complaint",
+                        "description": "Create new complaint category",
                         "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/complaints.Cases"
+                            "$ref": "#/definitions/models.ComplaintCategories"
                         }
                     }
                 ],
@@ -152,6 +152,38 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/complaint/FetchComplaintCategories/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "fetch the list of complaint category",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TblComplaintCategories"
+                        }
+                    }
+                }
+            }
+        },
+        "/complaint/GetComplaintByRefID/{ReferenceID}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get logged complaint with reference ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TblCases"
                         }
                     }
                 }
@@ -187,146 +219,6 @@
         }
     },
     "definitions": {
-        "complaints.Cases": {
-            "type": "object",
-            "properties": {
-                "AccountCurrency": {
-                    "type": "string"
-                },
-                "AccountNumber": {
-                    "type": "string"
-                },
-                "AccountType": {
-                    "type": "string"
-                },
-                "ActionTaken": {
-                    "type": "string"
-                },
-                "AddedBy": {
-                    "type": "string"
-                },
-                "Address1": {
-                    "type": "string"
-                },
-                "Address2": {
-                    "type": "string"
-                },
-                "AmountRecovered": {
-                    "description": "decimal.Decimal",
-                    "type": "string"
-                },
-                "AmountRefunded": {
-                    "description": "decimal.Decimal",
-                    "type": "string"
-                },
-                "BranchName": {
-                    "type": "string"
-                },
-                "CFirstName": {
-                    "type": "string"
-                },
-                "CLastName": {
-                    "type": "string"
-                },
-                "CMiddleName": {
-                    "type": "string"
-                },
-                "Category": {
-                    "type": "string"
-                },
-                "CellPhone": {
-                    "type": "string"
-                },
-                "City": {
-                    "type": "string"
-                },
-                "ClientType": {
-                    "type": "string"
-                },
-                "ComplaintChannelID": {
-                    "type": "string"
-                },
-                "ComplaintLocation": {
-                    "type": "string"
-                },
-                "ComplaintType": {
-                    "type": "string"
-                },
-                "Country": {
-                    "type": "string"
-                },
-                "DateClosed": {
-                    "type": "string"
-                },
-                "DateReceived": {
-                    "type": "string"
-                },
-                "Description": {
-                    "type": "string"
-                },
-                "DisputeAmount": {
-                    "description": "decimal.Decimal",
-                    "type": "string"
-                },
-                "Email": {
-                    "type": "string"
-                },
-                "FullName": {
-                    "type": "string"
-                },
-                "Implication": {
-                    "type": "string"
-                },
-                "NameOfConsultant": {
-                    "type": "string"
-                },
-                "OfficePhone": {
-                    "type": "string"
-                },
-                "PosterCode": {
-                    "type": "string"
-                },
-                "Prayer": {
-                    "type": "string"
-                },
-                "PreffeContPhone": {
-                    "type": "string"
-                },
-                "PreffeContact": {
-                    "type": "string"
-                },
-                "PreffeEmail": {
-                    "type": "string"
-                },
-                "RefNo": {
-                    "type": "string"
-                },
-                "Remarks": {
-                    "type": "string"
-                },
-                "State": {
-                    "type": "string"
-                },
-                "Status": {
-                    "type": "string"
-                },
-                "SubCategory": {
-                    "type": "string"
-                },
-                "Subject": {
-                    "type": "string"
-                },
-                "TransactionDate": {
-                    "type": "string"
-                },
-                "comment": {
-                    "type": "string"
-                },
-                "updatedby": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Cases": {
             "type": "object",
             "properties": {
@@ -461,6 +353,17 @@
                 }
             }
         },
+        "models.ComplaintCategories": {
+            "type": "object",
+            "properties": {
+                "CBNCategoryCode": {
+                    "type": "string"
+                },
+                "Category": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ResponseMessage": {
             "type": "object",
             "properties": {
@@ -494,10 +397,167 @@
                 }
             }
         },
-        "users.User": {
+        "models.TblCases": {
             "type": "object",
             "properties": {
-                "CreatedBy": {
+                "AccountCurrency": {
+                    "type": "string"
+                },
+                "AccountNumber": {
+                    "type": "string"
+                },
+                "AccountType": {
+                    "type": "string"
+                },
+                "ActionTaken": {
+                    "type": "string"
+                },
+                "AddedBy": {
+                    "type": "string"
+                },
+                "Address1": {
+                    "type": "string"
+                },
+                "Address2": {
+                    "type": "string"
+                },
+                "AmountRecovered": {
+                    "type": "string"
+                },
+                "AmountRefunded": {
+                    "type": "string"
+                },
+                "BranchName": {
+                    "type": "string"
+                },
+                "CFirstName": {
+                    "type": "string"
+                },
+                "CLastName": {
+                    "type": "string"
+                },
+                "CMiddleName": {
+                    "type": "string"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "CellPhone": {
+                    "type": "string"
+                },
+                "City": {
+                    "type": "string"
+                },
+                "ClientType": {
+                    "type": "string"
+                },
+                "ComplaintChannelID": {
+                    "type": "string"
+                },
+                "ComplaintLocation": {
+                    "type": "string"
+                },
+                "ComplaintType": {
+                    "type": "string"
+                },
+                "Country": {
+                    "type": "string"
+                },
+                "DateClosed": {
+                    "type": "string"
+                },
+                "DateCreated": {
+                    "type": "string"
+                },
+                "DateReceived": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "DisputeAmount": {
+                    "type": "string"
+                },
+                "Email": {
+                    "type": "string"
+                },
+                "FullName": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                },
+                "Implication": {
+                    "type": "string"
+                },
+                "NameOfConsultant": {
+                    "type": "string"
+                },
+                "OfficePhone": {
+                    "type": "string"
+                },
+                "PosterCode": {
+                    "type": "string"
+                },
+                "Prayer": {
+                    "type": "string"
+                },
+                "PreffeContPhone": {
+                    "type": "string"
+                },
+                "PreffeContact": {
+                    "type": "string"
+                },
+                "PreffeEmail": {
+                    "type": "string"
+                },
+                "RefNo": {
+                    "type": "string"
+                },
+                "Remarks": {
+                    "type": "string"
+                },
+                "State": {
+                    "type": "string"
+                },
+                "Status": {
+                    "type": "string"
+                },
+                "SubCategory": {
+                    "type": "string"
+                },
+                "Subject": {
+                    "type": "string"
+                },
+                "TransactionDate": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "updatedby": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TblComplaintCategories": {
+            "type": "object",
+            "properties": {
+                "CBNCategoryCode": {
+                    "type": "string"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "DateAdded": {
                     "type": "string"
                 },
                 "Email": {
@@ -518,7 +578,13 @@
                 "RoleID": {
                     "type": "string"
                 },
+                "UpdatedBy": {
+                    "type": "string"
+                },
                 "UserName": {
+                    "type": "string"
+                },
+                "UserStatus": {
                     "type": "string"
                 }
             }

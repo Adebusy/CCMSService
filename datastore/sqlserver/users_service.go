@@ -34,6 +34,7 @@ func (er userService) CheckUser(ctx context.Context, RequestBody string) (md.Tbl
 	var UserResp md.TblUsers
 	fmt.Println("got here41")
 	fmt.Println(RequestBody)
+
 	query := er.DbGorm.Table(`Tbl_users`).Where(`user_name =?`, RequestBody).First(&UserResp)
 	if UserResp.ID != 0 {
 		fmt.Println("got here4")
