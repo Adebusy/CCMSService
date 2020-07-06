@@ -24,7 +24,7 @@ import (
 // @Produce json
 // @Param user body models.Cases true "Create new complaint"
 // @Success 200 {object} models.ResponseMessage
-// @Router /complaint/LogComplaintRequest/ [post]
+// @Router /api/complaint/LogComplaintRequest/ [post]
 func LogComplaintRequest(ctx *gin.Context) {
 	fmt.Println("got to here cases 1")
 	var NewCase md.Cases
@@ -152,7 +152,7 @@ func LogComplaintRequest(ctx *gin.Context) {
 // @Summary get logged complaint with reference ID
 // @Produce json
 // @Success 200 {object} models.TblCases
-// @Router /complaint/GetComplaintByRefID/{ReferenceID} [get]
+// @Router /api/complaint/GetComplaintByRefID/{ReferenceID} [get]
 func GetComplaintByRefID(ctx *gin.Context) {
 	fmt.Println("got to here cases 1")
 	CompRefNo := ctx.Param("ReferenceID")
@@ -175,11 +175,11 @@ func GetComplaintByRefID(ctx *gin.Context) {
 }
 
 // CreateComplaintCategories godoc
-// @Summary create new compliant
+// @Summary create new compliant category
 // @Produce json
 // @Param user body models.ComplaintCategories true "Create new complaint category"
 // @Success 200 {object} models.ResponseMessage
-// @Router /complaint/CreateComplaintCategories/ [post]
+// @Router /api/complaint/CreateComplaintCategories/ [post]
 func CreateComplaintCategories(ctx *gin.Context) {
 	var req md.ComplaintCategories
 	var reqBody md.TblComplaintCategories
@@ -222,8 +222,72 @@ func CreateComplaintCategories(ctx *gin.Context) {
 // @Summary fetch the list of complaint category
 // @Produce json
 // @Success 200 {object} models.TblComplaintCategories
-// @Router /complaint/FetchComplaintCategories/ [get]
+// @Router /api/complaint/FetchComplaintCategories/ [get]
 func FetchComplaintCategories(ctx *gin.Context) {
 	CustCompliant := compService.FetchCompliantCategories(ctx)
 	ctx.JSON(http.StatusOK, CustCompliant)
+}
+
+// CreateComplaintSubCategories godoc
+// @Summary create new compliant sub category
+// @Produce json
+// @Param user body models.ComplaintSubCategories true "Create new complaint sub category"
+// @Success 200 {object} models.ResponseMessage
+// @Router /api/complaint/CreateComplaintSubCategories/ [post]
+func CreateComplaintSubCategories(ctx *gin.Context) {
+	fmt.Println("gor here now")
+	var req md.ComplaintSubCategories
+	var reqBody md.TblComplaintSubCategories
+	requestBody := ctx.ShouldBindJSON(&req)
+	if requestBody != nil {
+		ctx.JSON(http.StatusOK, "unable to read request at the moment. Please confirm the request body and try again")
+		return
+	}
+	fmt.Println(req.SubCategory)
+
+	checkComplCategory := compService.CheckCompliantCategoryByID(ctx, req.CategoryID)
+	if checkComplCategory <= 0 {
+		resp.ResponseCode = "01"
+		resp.ResponseDescription = "Complaint category does not exist. Please re-check the name and try again."
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+
+	//check it has not been created before
+	checkCompl := compService.CheckCompliantSubCategory(ctx, req)
+	if checkCompl > 0 {
+		resp.ResponseCode = "01"
+		resp.ResponseDescription = "Complaint sub category already exist. Please re-check the name and try again."
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+	reqBody.SubCategory = req.SubCategory
+	reqBody.CategoryID = req.CategoryID
+	//create category
+	doCreate, err := compService.CreateCompliantSubCategory(ctx, reqBody)
+	if err != nil {
+		resp.ResponseDescription = err.Error()
+		resp.ResponseCode = "01"
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+	if doCreate <= 0 {
+		resp.ResponseDescription = "Service is unable to create category at the moment. Please try again later"
+		resp.ResponseCode = "01"
+		ctx.JSON(http.StatusOK, resp)
+		return
+	}
+	resp.ResponseDescription = "Complaint sub-category created successfully."
+	resp.ResponseCode = "00"
+	ctx.JSON(http.StatusOK, resp)
+}
+
+// FetchComplaintSubCategories godoc
+// @Summary fetch the list of complaint sub-category
+// @Produce json
+// @Success 200 {object} models.TblComplaintSubCategories
+// @Router /api/complaint/FetchComplaintSubCategories/ [get]
+func FetchComplaintSubCategories(ctx *gin.Context) {
+	CustSubCompliant := compService.FetchCompliantSubCategories(ctx)
+	ctx.JSON(http.StatusOK, CustSubCompliant)
 }

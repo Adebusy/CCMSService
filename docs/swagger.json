@@ -16,7 +16,7 @@
     },
     "basePath": "/api/v1",
     "paths": {
-        "/Users/ChangeUserDetails/": {
+        "/api/Users/ChangeUserDetails/": {
             "post": {
                 "produces": [
                     "application/json"
@@ -44,7 +44,7 @@
                 }
             }
         },
-        "/Users/ChangeUserStatus/{Username}/{Status}/{RoleID}": {
+        "/api/Users/ChangeUserStatus/{Username}/{Status}/{RoleID}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -60,7 +60,7 @@
                 }
             }
         },
-        "/Users/CreateUser/": {
+        "/api/Users/CreateUser/": {
             "post": {
                 "produces": [
                     "application/json"
@@ -88,7 +88,7 @@
                 }
             }
         },
-        "/Users/FetchAvailableRoles/": {
+        "/api/Users/FetchAvailableRoles/": {
             "get": {
                 "produces": [
                     "application/json"
@@ -104,7 +104,7 @@
                 }
             }
         },
-        "/Users/GetUserFullInfoByEmail/{UserEmail}": {
+        "/api/Users/GetUserFullInfoByEmail/{UserEmail}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -129,12 +129,12 @@
                 }
             }
         },
-        "/complaint/CreateComplaintCategories/": {
+        "/api/complaint/CreateComplaintCategories/": {
             "post": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "create new compliant",
+                "summary": "create new compliant category",
                 "parameters": [
                     {
                         "description": "Create new complaint category",
@@ -157,7 +157,35 @@
                 }
             }
         },
-        "/complaint/FetchComplaintCategories/": {
+        "/api/complaint/CreateComplaintSubCategories/": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "create new compliant sub category",
+                "parameters": [
+                    {
+                        "description": "Create new complaint sub category",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.ComplaintSubCategories"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/complaint/FetchComplaintCategories/": {
             "get": {
                 "produces": [
                     "application/json"
@@ -173,7 +201,23 @@
                 }
             }
         },
-        "/complaint/GetComplaintByRefID/{ReferenceID}": {
+        "/api/complaint/FetchComplaintSubCategories/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "fetch the list of complaint sub-category",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TblComplaintSubCategories"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/complaint/GetComplaintByRefID/{ReferenceID}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -189,7 +233,7 @@
                 }
             }
         },
-        "/complaint/LogComplaintRequest/": {
+        "/api/complaint/LogComplaintRequest/": {
             "post": {
                 "produces": [
                     "application/json"
@@ -360,6 +404,17 @@
                     "type": "string"
                 },
                 "Category": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ComplaintSubCategories": {
+            "type": "object",
+            "properties": {
+                "CategoryID": {
+                    "type": "integer"
+                },
+                "SubCategory": {
                     "type": "string"
                 }
             }
@@ -551,6 +606,20 @@
                 },
                 "ID": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.TblComplaintSubCategories": {
+            "type": "object",
+            "properties": {
+                "categoryID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "subCategory": {
+                    "type": "string"
                 }
             }
         },

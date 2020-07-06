@@ -26,7 +26,7 @@ var resp models.ResponseMessage
 // @Summary create new question
 // @Produce json
 // @Success 200 {object} models.Roles
-// @Router /Users/FetchAvailableRoles/ [get]
+// @Router /api/Users/FetchAvailableRoles/ [get]
 func FetchRoles(ctx *gin.Context) {
 	resp.ResponseDescription = ""
 	resp.ResponseCode = ""
@@ -38,7 +38,7 @@ func FetchRoles(ctx *gin.Context) {
 // @Produce json
 // @Param user body models.User true "create new user"
 // @Success 200 {object} models.ResponseMessage
-// @Router /Users/CreateUser/ [post]
+// @Router /api/Users/CreateUser/ [post]
 func CreateUser(ctx *gin.Context) {
 	var RequestBody md.User
 	resp.ResponseDescription = ""
@@ -50,7 +50,7 @@ func CreateUser(ctx *gin.Context) {
 	}
 
 	//validate user request
-	valRequest := ValidateUserRequest(RequestBody)
+	valRequest := ut.ValidateUserRequest(RequestBody)
 	if valRequest.ResponseCode != "" {
 		ctx.JSON(http.StatusBadRequest, valRequest)
 		return
@@ -98,7 +98,7 @@ func CreateUser(ctx *gin.Context) {
 // @Produce json
 // @Param user body models.User true "create new user"
 // @Success 200 {object} models.ResponseMessage
-// @Router /Users/ChangeUserDetails/ [post]
+// @Router /api/Users/ChangeUserDetails/ [post]
 func ChangeUserDetails(ctx *gin.Context) {
 	var resp md.ResponseMessage
 	var RequestBody models.User
@@ -107,7 +107,7 @@ func ChangeUserDetails(ctx *gin.Context) {
 	ctx.ShouldBindJSON(&RequestBody)
 
 	//validate user request
-	valRequest := ValidateUserRequest(RequestBody)
+	valRequest := ut.ValidateUserRequest(RequestBody)
 	if valRequest.ResponseCode != "" {
 		ctx.JSON(http.StatusBadRequest, valRequest)
 		return
@@ -140,7 +140,7 @@ func ChangeUserDetails(ctx *gin.Context) {
 // @Summary Update user status ('Active', 'Non-Active')
 // @Produce json
 // @Success 200 {object} models.ResponseMessage
-// @Router /Users/ChangeUserStatus/{Username}/{Status}/{RoleID} [get]
+// @Router /api/Users/ChangeUserStatus/{Username}/{Status}/{RoleID} [get]
 func ChangeUserStatus(ctx *gin.Context) {
 
 	requester := ctx.GetHeader("RequestByUsername")
@@ -214,7 +214,7 @@ func ChangeUserStatus(ctx *gin.Context) {
 // @Produce json
 // @Param UserEmail path string true "User email address"
 // @Success 200 {object} models.User
-// @Router /Users/GetUserFullInfoByEmail/{UserEmail} [get]
+// @Router /api/Users/GetUserFullInfoByEmail/{UserEmail} [get]
 func GetUserFullInfoByEmail(ctx *gin.Context) {
 	fmt.Println("print")
 	userEmail := ctx.Param(`UserEmail`)

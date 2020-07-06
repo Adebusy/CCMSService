@@ -22,8 +22,12 @@ type IComplaint interface {
 	LogComplaint(ctx context.Context, RequestBody modules.TblCases) (int, error)
 	GetSingleComplaintByComplaintID(ctx context.Context, RequestBody string) (modules.TblCases, error)
 	CreateCompliantCategory(ctx context.Context, RequestBody modules.TblComplaintCategories) (int, error)
+	CreateCompliantSubCategory(ctx context.Context, RequestBody modules.TblComplaintSubCategories) (int, error)
 	CheckCompliantCategory(ctx context.Context, RequestBody modules.ComplaintCategories) int
+	CheckCompliantCategoryByID(ctx context.Context, ComplaintID int) int
+	CheckCompliantSubCategory(ctx context.Context, RequestBody modules.ComplaintSubCategories) int
 	FetchCompliantCategories(ctx context.Context) []modules.TblComplaintCategories
+	FetchCompliantSubCategories(ctx context.Context) []modules.TblComplaintSubCategories
 }
 
 func (ts complaintService) LogComplaint(ctx context.Context, RequestBody modules.TblCases) (int, error) {
@@ -53,13 +57,36 @@ func (ts complaintService) CreateCompliantCategory(ctx context.Context, RequestB
 	return RequestBody.ID, nil
 }
 
+func (ts complaintService) CreateCompliantSubCategory(ctx context.Context, RequestBody modules.TblComplaintSubCategories) (int, error) {
+	query := ts.dbGorm.Table("Tbl_Complaint_Sub_Categories").Create(&RequestBody).Error
+	if query != nil {
+		return 0, query
+	}
+	return RequestBody.ID, nil
+}
+
 func (ts complaintService) CheckCompliantCategory(ctx context.Context, RequestBody modules.ComplaintCategories) int {
 	var mycase modules.TblComplaintCategories
 	ts.dbGorm.Table("Tbl_Complaint_Categories").Where("Category=?", RequestBody.Category).First(&mycase)
 	return mycase.ID
 }
+func (ts complaintService) CheckCompliantCategoryByID(ctx context.Context, ComplaintID int) int {
+	var mycase modules.TblComplaintCategories
+	ts.dbGorm.Table("Tbl_Complaint_Categories").Where("id=?", ComplaintID).First(&mycase)
+	return mycase.ID
+}
+func (ts complaintService) CheckCompliantSubCategory(ctx context.Context, RequestBody modules.ComplaintSubCategories) int {
+	var mycase modules.TblComplaintSubCategories
+	ts.dbGorm.Table("Tbl_Complaint_Sub_Categories").Where("category_id=? and sub_category=?", RequestBody.CategoryID, RequestBody.SubCategory).First(&mycase)
+	return mycase.ID
+}
 func (ts complaintService) FetchCompliantCategories(ctx context.Context) []modules.TblComplaintCategories {
 	var mycase []modules.TblComplaintCategories
 	ts.dbGorm.Table("Tbl_Complaint_Categories").Find(&mycase)
+	return mycase
+}
+func (ts complaintService) FetchCompliantSubCategories(ctx context.Context) []modules.TblComplaintSubCategories {
+	var mycase []modules.TblComplaintSubCategories
+	ts.dbGorm.Table("Tbl_Complaint_Sub_Categories").Find(&mycase)
 	return mycase
 }

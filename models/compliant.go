@@ -106,8 +106,9 @@ type ComplaintStatus struct {
 }
 
 type TblComplaintSubCategories struct {
-	ID          int    `json:"ID" validate:"omitempty"`
-	SubCategory string `json:"SubCategory" validate:"omitempty"`
+	ID          int
+	CategoryID  int
+	SubCategory string
 }
 
 type TblComplaintCategories struct {
@@ -119,6 +120,10 @@ type TblComplaintCategories struct {
 type ComplaintCategories struct {
 	Category        string `json:"Category" validate:"omitempty"`
 	CBNCategoryCode string `json:"CBNCategoryCode" validate:"omitempty"`
+}
+type ComplaintSubCategories struct {
+	CategoryID  int    `json:"CategoryID" validate:"omitempty"`
+	SubCategory string `json:"SubCategory" validate:"omitempty"`
 }
 
 type TblComplaintChannels struct {

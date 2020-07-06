@@ -97,6 +97,13 @@ definitions:
       Category:
         type: string
     type: object
+  models.ComplaintSubCategories:
+    properties:
+      CategoryID:
+        type: integer
+      SubCategory:
+        type: string
+    type: object
   models.ResponseMessage:
     properties:
       ResponseCode:
@@ -222,6 +229,15 @@ definitions:
       ID:
         type: integer
     type: object
+  models.TblComplaintSubCategories:
+    properties:
+      categoryID:
+        type: integer
+      id:
+        type: integer
+      subCategory:
+        type: string
+    type: object
   models.User:
     properties:
       DateAdded:
@@ -257,7 +273,7 @@ info:
   title: Consumers Complaint Management System API
   version: "1.0"
 paths:
-  /Users/ChangeUserDetails/:
+  /api/Users/ChangeUserDetails/:
     post:
       parameters:
       - description: create new user
@@ -275,7 +291,7 @@ paths:
           schema:
             $ref: '#/definitions/models.ResponseMessage'
       summary: create new question
-  /Users/ChangeUserStatus/{Username}/{Status}/{RoleID}:
+  /api/Users/ChangeUserStatus/{Username}/{Status}/{RoleID}:
     get:
       produces:
       - application/json
@@ -285,7 +301,7 @@ paths:
           schema:
             $ref: '#/definitions/models.ResponseMessage'
       summary: Update user status ('Active', 'Non-Active')
-  /Users/CreateUser/:
+  /api/Users/CreateUser/:
     post:
       parameters:
       - description: create new user
@@ -303,7 +319,7 @@ paths:
           schema:
             $ref: '#/definitions/models.ResponseMessage'
       summary: create new question
-  /Users/FetchAvailableRoles/:
+  /api/Users/FetchAvailableRoles/:
     get:
       produces:
       - application/json
@@ -313,7 +329,7 @@ paths:
           schema:
             $ref: '#/definitions/models.Roles'
       summary: create new question
-  /Users/GetUserFullInfoByEmail/{UserEmail}:
+  /api/Users/GetUserFullInfoByEmail/{UserEmail}:
     get:
       parameters:
       - description: User email address
@@ -329,7 +345,7 @@ paths:
           schema:
             $ref: '#/definitions/models.User'
       summary: get user detials by user email address
-  /complaint/CreateComplaintCategories/:
+  /api/complaint/CreateComplaintCategories/:
     post:
       parameters:
       - description: Create new complaint category
@@ -346,8 +362,26 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.ResponseMessage'
-      summary: create new compliant
-  /complaint/FetchComplaintCategories/:
+      summary: create new compliant category
+  /api/complaint/CreateComplaintSubCategories/:
+    post:
+      parameters:
+      - description: Create new complaint sub category
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.ComplaintSubCategories'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseMessage'
+      summary: create new compliant sub category
+  /api/complaint/FetchComplaintCategories/:
     get:
       produces:
       - application/json
@@ -357,7 +391,17 @@ paths:
           schema:
             $ref: '#/definitions/models.TblComplaintCategories'
       summary: fetch the list of complaint category
-  /complaint/GetComplaintByRefID/{ReferenceID}:
+  /api/complaint/FetchComplaintSubCategories/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TblComplaintSubCategories'
+      summary: fetch the list of complaint sub-category
+  /api/complaint/GetComplaintByRefID/{ReferenceID}:
     get:
       produces:
       - application/json
@@ -367,7 +411,7 @@ paths:
           schema:
             $ref: '#/definitions/models.TblCases'
       summary: get logged complaint with reference ID
-  /complaint/LogComplaintRequest/:
+  /api/complaint/LogComplaintRequest/:
     post:
       parameters:
       - description: Create new complaint
